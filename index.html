@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="fontawesome-free-5.15.2-web/css/all.css">
+</head>
+<body>
+    <div class="maindiv d-flex justify-content-center align-items-center">
+        <div class="center text-center">
+            <h1 class="title my-3" id="title">Song1</h1>
+            <h3 class="text-secondary my-4 artist" id="artist">noone1</h3>
+            <div class="img_container mx-auto">
+                <img src="songs/img1.jpg" alt="err" class="img-fluid" id="myimg">
+            </div>
+            <audio src="songs/s1.mp3" id="music"></audio>
+            <!-- progress part -->
+            <div class="progress_div">
+                <div class="meter d-flex justify-content-between">
+                    <div class="curtime">0:00</div>
+                    <div class="durtime">4:30</div>
+                </div>
+                <div class="progress-bar" id="pbar">
+                    <div class="progress"id="progress"></div>
+                </div>
+            </div>
+            <!-- controls starts -->
+            <div class="controls d-flex justify-content-around">
+                <a href="#"> <i class="fa fa-backward fa-4x" id="lbtn"></i> </a>
+                <a href="#" class="mbtn"><i class="fa fa-play fa-4x" id="mbtn"></i></a>
+                <a href="#"> <i class="fa fa-forward fa-4x" id="rbtn"></i> </a>
+            </div>
+        </div>
+    </div>
+    <script src="js/abc.min.js"></script>
+    <script src="js/popper.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script>
+        const music = document.getElementById("music");
+        const mbtn = document.getElementById("mbtn");
+        const myimg = document.getElementById("myimg");
+        const lbtn = document.getElementById("lbtn");
+        const rbtn = document.getElementById("rbtn");
+
+        let title = document.getElementById("title");
+        let artist = document.getElementById("artist");
+        let isplaying=false;
+
+        let curtime = document.querySelector('.curtime');
+        let durtime = document.querySelector('.durtime');
+        let progress = document.getElementById("progress");
+        let pbar = document.getElementById("pbar");
+        const Sdata = [
+            {
+                name:"dk1",
+                title:"Song1",
+                artist:"noone1",
+                src:"songs/s1.mp3",
+                imgsrc:"songs/img1.jpg"
+            },{
+                name:"dk2",
+                title:"Song2",
+                artist:"noone2",
+                src:"songs/s2.mp3",
+                imgsrc:"songs/img2.jpg"
+            },{
+                name:"dk3",
+                title:"Song3",
+                artist:"noone3",
+                src:"songs/s3.mp3",
+                imgsrc:"songs/img3.jpg"
+            }
+        ];
+        let songindex = 0;
+        const playsong=()=>{
+            isplaying=true;
+            console.log(isplaying)
+            music.play();
+            mbtn.classList.replace("fa-play","fa-pause");
+            myimg.classList.add("animate");
+        }
+         const pausesong=()=>{
+            isplaying=false;
+            music.pause();
+            mbtn.classList.replace("fa-pause","fa-play");
+            myimg.classList.remove("animate");
+        }
+        mbtn.addEventListener('click',()=>{
+            isplaying ? pausesong() : playsong();
+        });
+        //progress work
+        music.addEventListener('timeupdate',(event)=>{
+            // console.log(event.srcElement.duration);
+            // const currentTime = event.srcElement.currentTime;
+            // const duration = event.srcElement.duration;
+            const {currentTime,duration} = event.srcElement;
+            let bar = Math.floor((currentTime * 100) / duration);
+            progress.style.width = `${bar}%` ;
+            // console.log(bar);
+            //durtime on screen
+            // min_duration  = Math.floor(duration / 60);
+            // sec_duration = Math.floor(duration % 60);
+            //  setInterval((event)=>{
+                if(duration){
+            min_duration  = Math.floor(duration / 60);
+            sec_duration = Math.floor(duration % 60);
+            if(sec_duration < 10){
+                sec_duration = `0${sec_duration}`;
+            }
+                durtime.innerHTML = `${min_duration}:${sec_duration}`;
+                // console.log(min_duration,sec_duration)
+            }
+            // },1000)
+            
+            //curtime on screen
+            // if(min_duration){
+            //     console.log(min_duration,sec_duration)
+            // }
+            min_currentTime  = Math.floor(currentTime / 60);
+            sec_currentTime = Math.floor(currentTime % 60);
+
+            if(sec_currentTime < 10){
+                sec_currentTime = `0${sec_currentTime}`;
+            }
+            //  if(min_currentTime){
+                // setInterval(()=>{
+                    curtime.innerHTML = `${min_currentTime}:${sec_currentTime}`;
+                // },1000)
+                 
+            // }
+        })
+        pbar.addEventListener('click',(event)=>{
+            // console.log(event)
+           const dur = music.duration;
+        //    console.log(dur);
+           let move = (event.offsetX / event.srcElement.clientWidth) * dur;
+        //    console.log(move)
+         music.currentTime = move;
+        })
+        const nextsong = ()=>{
+        //    console.log(songindex);
+        //    console.log(Sdata[songindex]);
+           songindex = (songindex + 1) % Sdata.length;
+           title.textContent = Sdata[songindex].title;
+           artist.textContent = Sdata[songindex].artist;
+           music.src=Sdata[songindex].src;
+           myimg.src=Sdata[songindex].imgsrc;
+            playsong();
+        }
+        const prevsong=()=>{
+             
+        //    console.log(songindex);
+        //    console.log(Sdata[songindex]);
+           songindex = (songindex - 1 + Sdata.length) % Sdata.length;
+           title.textContent = Sdata[songindex].title;
+           artist.textContent = Sdata[songindex].artist;
+           music.src=Sdata[songindex].src;
+           myimg.src=Sdata[songindex].imgsrc;
+           playsong();
+        }
+        rbtn.addEventListener('click',nextsong);
+        lbtn.addEventListener('click',prevsong);
+        music.addEventListener('ended',nextsong);
+    </script>
+</body>
+</html>
